@@ -5,6 +5,8 @@ pgn_file = 'test_pgn/myblitz.pgn'
 
 player = 'bkeej'
 
+time = '180+2'
+
 def win(pgn):
 	result = pgn.headers['Result']
 	if pgn.headers['Result'] == '1/2-1/2':
@@ -22,6 +24,20 @@ def elo(pgn):
 	elif pgn.headers['Black'] == player:
 		return pgn.headers['BlackElo']
 
+def tc(time,df):
+	indexNames = df[df['TimeControl'] != time].index
+	print(indexNames)
+	df.drop(indexNames, inplace=True)
+	return df
+
+def performance(df):
+	winIndex = df[df['Result'] == 'win'].index
+	lossIndex = df[df['Result'] == 'loss'].index
+	drawIndex = df[df['Result'] == 'draw'].index
+	print(winIndex)
+	print(lossIndex)
+	print(drawIndex)
+
 df = pd.DataFrame(columns=['Date','Result','Rating','TimeControl'])
 
 with open(pgn_file) as f:
@@ -31,4 +47,8 @@ with open(pgn_file) as f:
 		df = df.append(row, ignore_index=True)
 		pgn = chess.pgn.read_game(f)
 
+tc(time,df)
+
 print(df)
+
+performance(df)
