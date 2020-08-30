@@ -26,7 +26,6 @@ def elo(pgn):
 
 def tc(time,df):
 	indexNames = df[df['TimeControl'] != time].index
-	print(indexNames)
 	df.drop(indexNames, inplace=True)
 	return df
 
@@ -34,9 +33,12 @@ def performance(df):
 	winIndex = df[df['Result'] == 'win'].index
 	lossIndex = df[df['Result'] == 'loss'].index
 	drawIndex = df[df['Result'] == 'draw'].index
-	print(winIndex)
-	print(lossIndex)
-	print(drawIndex)
+	df['Performance'] = df.loc[drawIndex]['Rating']
+	df.loc[winIndex,'Performance'] = df.loc[winIndex]['Rating'] + 400
+	df.loc[lossIndex,'Performance'] = df.loc[lossIndex]['Rating'] - 400
+	return df
+	# print(lossIndex)
+	# print(drawIndex)
 
 df = pd.DataFrame(columns=['Date','Result','Rating','TimeControl'])
 
@@ -49,6 +51,16 @@ with open(pgn_file) as f:
 
 tc(time,df)
 
-print(df)
+df['Rating'] = df['Rating'].astype(int)
 
 performance(df)
+
+df.sort_values(by='Date', ascending=False, inplace=True)
+
+print('\n', player+"'s", 'performance Ratings for', time, '\n', '-------------------------------------\n')
+print('Overall:', df['Performance'].mean(), '\n')
+print('Last 300:', df.head(300)['Performance'].mean(), '\n')
+print('Last 100:', df.head(100)['Performance'].mean(), '\n')
+print('Last 50:', df.head(50)['Performance'].mean(), '\n')
+print('Last 25:', df.head(25)['Performance'].mean(), '\n')
+print('Last 10:', df.head(10)['Performance'].mean(), '\n')
