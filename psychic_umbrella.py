@@ -20,9 +20,9 @@ def win(pgn):
 
 def elo(pgn):
 	if pgn.headers['White'] == player:
-		return pgn.headers['WhiteElo']
-	elif pgn.headers['Black'] == player:
 		return pgn.headers['BlackElo']
+	elif pgn.headers['Black'] == player:
+		return pgn.headers['WhiteElo']
 
 def tc(time,df):
 	indexNames = df[df['TimeControl'] != time].index
@@ -33,34 +33,43 @@ def performance(df):
 	winIndex = df[df['Result'] == 'win'].index
 	lossIndex = df[df['Result'] == 'loss'].index
 	drawIndex = df[df['Result'] == 'draw'].index
-	df['Performance'] = df.loc[drawIndex]['Rating']
-	df.loc[winIndex,'Performance'] = df.loc[winIndex]['Rating'] + 400
-	df.loc[lossIndex,'Performance'] = df.loc[lossIndex]['Rating'] - 400
+	df['Performance'] = df.loc[drawIndex]['Opponent Rating']
+	df.loc[winIndex,'Performance'] = df.loc[winIndex]['Opponent Rating'] + 400
+	df.loc[lossIndex,'Performance'] = df.loc[lossIndex]['Opponent Rating'] - 400
 	return df
 	# print(lossIndex)
 	# print(drawIndex)
 
-df = pd.DataFrame(columns=['Date','Result','Rating','TimeControl'])
+def average_performace(df):
+	tc(time,df)
+	df['Opponent Rating'] = df['Opponent Rating'].astype(int)
+	performance(df)
+	df.sort_values(by='Date', ascending=False, inplace=True)
 
-with open(pgn_file) as f:
-	pgn = chess.pgn.read_game(f)
-	while pgn:
-		row = {'Date':pgn.headers['Date'], 'Result':win(pgn), 'Rating':elo(pgn), 'TimeControl':pgn.headers['TimeControl']}
-		df = df.append(row, ignore_index=True)
+	# print(df.head(10))
+
+	print('\n', player+"'s", 'performance Ratings for', time, '\n', '-------------------------------------\n')
+	print('Overall:', df['Performance'].mean(), '\n')
+	print('Last 300:', df.head(300)['Performance'].mean(), '\n')
+	print('Last 100:', df.head(100)['Performance'].mean(), '\n')
+	print('Last 50:', df.head(50)['Performance'].mean(), '\n')
+	print('Last 25:', df.head(25)['Performance'].mean(), '\n')
+	print('Last 10:', df.head(10)['Performance'].mean(), '\n')
+
+def parse_pgn(file):
+	df = pd.DataFrame(columns=['Date','Result','Opponent Rating','TimeControl'])
+
+	with open(pgn_file) as f:
 		pgn = chess.pgn.read_game(f)
+		while pgn:
+			row = {'Date':pgn.headers['Date'], 'Result':win(pgn), 'Opponent Rating':elo(pgn), 'TimeControl':pgn.headers['TimeControl']}
+			df = df.append(row, ignore_index=True)
+			pgn = chess.pgn.read_game(f)
+	return df
 
-tc(time,df)
+def main():
+	df = parse_pgn(pgn_file)
+	average_performace(df)
 
-df['Rating'] = df['Rating'].astype(int)
-
-performance(df)
-
-df.sort_values(by='Date', ascending=False, inplace=True)
-
-print('\n', player+"'s", 'performance Ratings for', time, '\n', '-------------------------------------\n')
-print('Overall:', df['Performance'].mean(), '\n')
-print('Last 300:', df.head(300)['Performance'].mean(), '\n')
-print('Last 100:', df.head(100)['Performance'].mean(), '\n')
-print('Last 50:', df.head(50)['Performance'].mean(), '\n')
-print('Last 25:', df.head(25)['Performance'].mean(), '\n')
-print('Last 10:', df.head(10)['Performance'].mean(), '\n')
+if __name__ == '__main__':
+	main() 
