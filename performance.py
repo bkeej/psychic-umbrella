@@ -43,12 +43,12 @@ def average_performace(df,player,time):
 	# print(df.head(10))
 
 	print('\n', player+"'s", 'performance Ratings for', time, '\n', '-------------------------------------\n')
-	print('Overall:', df['Performance'].mean(), '\n')
-	print('Last 300:', df.head(300)['Performance'].mean(), '\n')
-	print('Last 100:', df.head(100)['Performance'].mean(), '\n')
-	print('Last 50:', df.head(50)['Performance'].mean(), '\n')
-	print('Last 25:', df.head(25)['Performance'].mean(), '\n')
-	print('Last 10:', df.head(10)['Performance'].mean(), '\n')
+	print('Overall:', round(df['Performance'].mean()), '\n')
+	print('Last 300:', round(df.head(300)['Performance'].mean()), '\n')
+	print('Last 100:', round(df.head(100)['Performance'].mean()), '\n')
+	print('Last 50:', round(df.head(50)['Performance'].mean()), '\n')
+	print('Last 25:', round(df.head(25)['Performance'].mean()), '\n')
+	print('Last 10:', round(df.head(10)['Performance'].mean()), '\n')
 
 def parse_pgn(file,player):
 	df = pd.DataFrame(columns=['Date','Result','Opponent Rating','TimeControl'])
