@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import performance as per
 import argparse
 
